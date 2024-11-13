@@ -21,10 +21,6 @@ class Product(db.Model):
     name = db.Column(db.String(50))
     description = db.Column(db.String(200))
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
-
 @app.route("/index", methods=["POST"])
 def index_data():
     bulk_index_data_async.delay()
@@ -93,3 +89,9 @@ def search():
 def health_check():
     health = es.cluster.health()
     return jsonify({"status": health["status"], "details": health})
+
+with app.app_context():
+    db.create_all()
+
+if __name__ == "__main__":
+    app.run()
